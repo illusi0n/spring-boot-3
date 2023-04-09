@@ -10,7 +10,7 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class UserCSVRepository {
+public class UserRepository {
 
     public Optional<User> findByFirstName(String firstName) {
         return findAllUsers().stream().filter(user -> user.firstName().equals(firstName)).findFirst();

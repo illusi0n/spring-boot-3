@@ -11,7 +11,7 @@ import java.util.Optional;
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
-    private final UserCSVRepository userRepository;
+    private final UserRepository userRepository;
 
     private final ObservationRegistry observationRegistry;
 
