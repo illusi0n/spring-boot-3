@@ -1,24 +1,30 @@
 package com.example.demo;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserController {
-    @Autowired
-    private UserCSVRepository userRepository;
+    private final UserCSVRepository userRepository;
 
-    @GetMapping(path = "/findByFirstName")
-    public User findUserByFirstName(@RequestParam("firstName") String firstName) throws IOException {
-        Optional<User> findUserResult = this.userRepository.findByFirstName(firstName);
-        if (findUserResult.isEmpty()) {
-            throw new IllegalArgumentException(String.format("User with firstName=%s not found.", firstName));
-        }
+    private final ObservationRegistry observationRegistry;
 
-        return findUserResult.get();
+    @GetMapping
+    public User findUserByFirstName(@RequestParam("firstName") String firstName) {
+        return Observation.createNotStarted("users.find", this.observationRegistry)
+                .observe(() -> {
+                    Optional<User> findUserResult = this.userRepository.findByFirstName(firstName);
+                    if (findUserResult.isEmpty()) {
+                        throw new IllegalArgumentException(String.format("User with firstName=%s not found.", firstName));
+                    }
+
+                    return findUserResult.get();
+                });
     }
 }
